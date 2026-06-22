@@ -1,0 +1,27 @@
+{
+  "slug": "Bruer",
+  "name": "Bruer",
+  "version": "2.0.0",
+  "license": "GPL-3.0-or-later",
+  "brand": "Bruer",
+  "author": "Marco Gianino",
+  "authorEmail": "",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+    {
+      "slug": "SEQ1",
+      "name": "SEQ1",
+      "description": "Probabilistic Turing sequencer with quantizer and Euclidean triggers",
+      "tags": [
+        "Sequencer",
+        "Quantizer",
+        "Clock generator"
+      ]
+    }
+  ]
+}
