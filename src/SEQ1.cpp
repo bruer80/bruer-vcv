@@ -482,7 +482,7 @@ struct SEQ1Widget : ModuleWidget {
 
         box.size = Vec(40, 380);
 
-        setPanel(createPanel(asset::plugin(pluginInstance, "res/SEQ1.svg")));
+        setPanel(createPanel(asset::plugin(pluginInstance, "res/seq1.svg")));
         
         addParam(createParamCentered<TL1105>(
             mm2px(Vec(30, 14)),
