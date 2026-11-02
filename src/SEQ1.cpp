@@ -147,12 +147,9 @@ struct SEQ1 : Module {
     dsp::SchmittTrigger clearTrigger;
     
     bool noteEnabled[12] = {
-        true, false, true, false,
-        true, true, false,
-        true, false,
-        true, false,
-        true
-        
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false
     };
     
     int ranges[24];
@@ -193,30 +190,70 @@ struct SEQ1 : Module {
         configOutput(TRIG3_OUTPUT, "Trigger 3");
 
         configParam(GENERATE_PARAM, 0.f, 1.f, 0.f, "Generate");
-        configParam(LENGTH_PARAM, 1.f, 16.f, 8.f, "Length");
+        configParam(LENGTH_PARAM, 1.f, 16.f, 1.f, "Length");
         paramQuantities[LENGTH_PARAM]->snapEnabled = true;
-        configParam(SCALE_PARAM, 1.f, 8.f, 2.f, "Scale");
+        configParam(SCALE_PARAM, 1.f, 8.f, 1.f, "Scale");
         paramQuantities[SCALE_PARAM]->snapEnabled = true;
 
-        configParam(EUCL1_PARAM, 0.f, 16.f, 4.f, "Euclidean 1");
-        configParam(EUCL2_PARAM, 0.f, 16.f, 5.f, "Euclidean 2");
-        configParam(EUCL3_PARAM, 0.f, 16.f, 7.f, "Euclidean 3");
+        configParam(EUCL1_PARAM, 0.f, 16.f, 0.f, "Euclidean 1");
+        configParam(EUCL2_PARAM, 0.f, 16.f, 0.f, "Euclidean 2");
+        configParam(EUCL3_PARAM, 0.f, 16.f, 0.f, "Euclidean 3");
         paramQuantities[EUCL1_PARAM]->snapEnabled = true;
         paramQuantities[EUCL2_PARAM]->snapEnabled = true;
         paramQuantities[EUCL3_PARAM]->snapEnabled = true;
 
-        configParam(NOTE_C_PARAM, 0.f, 1.f, 1.f, "C");
+        configParam(NOTE_C_PARAM, 0.f, 1.f, 0.f, "C");
         configParam(NOTE_CS_PARAM, 0.f, 1.f, 0.f, "C#");
-        configParam(NOTE_D_PARAM, 0.f, 1.f, 1.f, "D");
+        configParam(NOTE_D_PARAM, 0.f, 1.f, 0.f, "D");
         configParam(NOTE_DS_PARAM, 0.f, 1.f, 0.f, "D#");
-        configParam(NOTE_E_PARAM, 0.f, 1.f, 1.f, "E");
-        configParam(NOTE_F_PARAM, 0.f, 1.f, 1.f, "F");
+        configParam(NOTE_E_PARAM, 0.f, 1.f, 0.f, "E");
+        configParam(NOTE_F_PARAM, 0.f, 1.f, 0.f, "F");
         configParam(NOTE_FS_PARAM, 0.f, 1.f, 0.f, "F#");
-        configParam(NOTE_G_PARAM, 0.f, 1.f, 1.f, "G");
+        configParam(NOTE_G_PARAM, 0.f, 1.f, 0.f, "G");
         configParam(NOTE_GS_PARAM, 0.f, 1.f, 0.f, "G#");
-        configParam(NOTE_A_PARAM, 0.f, 1.f, 1.f, "A");
+        configParam(NOTE_A_PARAM, 0.f, 1.f, 0.f, "A");
         configParam(NOTE_AS_PARAM, 0.f, 1.f, 0.f, "A#");
-        configParam(NOTE_B_PARAM, 0.f, 1.f, 1.f, "B");
+        configParam(NOTE_B_PARAM, 0.f, 1.f, 0.f, "B");
+
+        updateRanges();
+    }
+
+    json_t* dataToJson() override {
+        json_t* rootJ = json_object();
+        json_t* notesJ = json_array();
+
+        for (int i = 0; i < 12; i++) {
+            json_array_append_new(notesJ, json_boolean(noteEnabled[i]));
+        }
+
+        json_object_set_new(rootJ, "noteEnabled", notesJ);
+        return rootJ;
+    }
+
+    void dataFromJson(json_t* rootJ) override {
+        json_t* notesJ = json_object_get(rootJ, "noteEnabled");
+
+        for (int i = 0; i < 12; i++) {
+            noteEnabled[i] = false;
+        }
+
+        if (json_is_array(notesJ)) {
+            for (int i = 0; i < 12 && i < (int)json_array_size(notesJ); i++) {
+                noteEnabled[i] = json_is_true(json_array_get(notesJ, i));
+            }
+        }
+
+        updateRanges();
+    }
+
+    void fromJson(json_t* rootJ) override {
+        Module::fromJson(rootJ);
+
+        for (int i = 0; i < 12; i++) {
+            params[NOTE_C_PARAM + i].setValue(0.f);
+            noteTriggers[i].reset();
+            noteTriggers[i].process(0.f);
+        }
 
         updateRanges();
     }
